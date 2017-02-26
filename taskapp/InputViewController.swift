@@ -5,15 +5,12 @@ import UserNotifications
 class InputViewController: UIViewController {
 
     @IBOutlet weak var titleTextField: UITextField!
-
-    
     @IBOutlet weak var contentsTextView: UITextView!
-    
     @IBOutlet weak var datePicker: UIDatePicker!
+    @IBOutlet weak var categoryTextField: UITextField!
     
     var task: Task!
     let realm = try! Realm()
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +22,9 @@ class InputViewController: UIViewController {
         titleTextField.text = task.title
         contentsTextView.text = task.contents
         datePicker.date = task.date as Date
+        categoryTextField.text = task.category
     }
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -34,15 +33,18 @@ class InputViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         try! realm.write {
             self.task.title = self.titleTextField.text!
+            self.task.category = self.categoryTextField.text!
             self.task.contents = self.contentsTextView.text
             self.task.date = self.datePicker.date as NSDate
             self.realm.add(self.task, update: true)
+            
         }
         
         setNotification(task: task)
         
         super.viewWillDisappear(animated)
     }
+    
     // タスクのローカル通知を登録する
     func setNotification(task: Task) {
         let content = UNMutableNotificationContent()
@@ -61,7 +63,7 @@ class InputViewController: UIViewController {
         // ローカル通知を登録
         let center = UNUserNotificationCenter.current()
         center.add(request) { (error) in
-            print(error)
+            print(error ?? "error")
         }
         
         // 未通知のローカル通知一覧をログ出力

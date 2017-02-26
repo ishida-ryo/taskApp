@@ -2,30 +2,33 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
 
-    
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     //Realmのインスタンスを取得する
     let realm = try! Realm()
-    
+
     // DB内のタスクが格納されるリスト。
     // 日付近い順\順でソート：降順
     // 以降内容をアップデートするとリスト内は自動的に更新される。
-    let taskArray = try! Realm().objects(Task.self).sorted(byProperty: "date", ascending: false)
+    var taskArray = try! Realm().objects(Task.self).sorted(byProperty: "date", ascending: false)
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        
+        searchBar.delegate = self
+        searchBar.showsCancelButton = true
+        searchBar.placeholder = "検索文字列を入力してください"
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-    
+
     // MARK: UITableViewDataSourceプロトコルのメソッド
     // データの数（＝セルの数）を返すメソッド
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -111,5 +114,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
     }
 }
+    // サーチバーがクリックされた時に呼ばれる
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        print(searchBar.text ?? "")
+        // NSPredicateを使って検索条件を指定します
+        let predicate = NSPredicate(format: "category = %@", searchBar.text!)
+        taskArray = realm.objects(Task.self).filter(predicate)
+        
+        tableView.reloadData()
+    }
+    
+    //　キャンセルボタンを押した時に呼ばれる
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        taskArray = try! Realm().objects(Task.self).sorted(byProperty: "date", ascending: false)
+        tableView.reloadData()
+    }
 }
 

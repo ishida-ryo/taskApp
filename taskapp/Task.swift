@@ -11,8 +11,11 @@ class Task: Object {
     // 内容
     dynamic var contents = ""
     
-    /// 日時
+    // 日時
     dynamic var date = NSDate()
+    
+    // カテゴリ
+    dynamic var category = ""
     
     /**
      id をプライマリーキーとして設定
